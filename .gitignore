@@ -1,0 +1,29 @@
+# Build outputs
+/build/
+/out/
+/tmp/
+
+# Objects and binaries
+/**/*.o
+/**/*.obj
+/**/*.a
+/**/*.lib
+/**/*.elf
+/**/*.map
+/**/*.nso
+/**/*.nro
+/**/*.kip
+/**/*.pdb
+/**/*.dll
+
+# Python
+/.venv/
+/**/__pycache__/
+*.pyc
+*.pyo
+
+# Proprietary dumps (keep folder)
+/orig/*
+!/orig/.gitkeep
+/roms/
+/dumps/

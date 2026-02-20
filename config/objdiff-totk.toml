@@ -1,0 +1,17 @@
+[globals]
+project = "Tears of the Kingdom Decomp"
+build_dir = "build"
+orig_dir = "orig"
+
+[[binaries]]
+name = "main"
+path = "orig/main.nso"
+arch = "aarch64"
+load_address = "0x710000000"
+
+[[binaries]]
+name = "main+"
+path = "orig/main.nso"
+arch = "aarch64"
+load_address = "0x710000000"
+flags = ["disassemble"]
