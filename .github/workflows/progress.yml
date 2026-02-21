@@ -66,7 +66,7 @@ jobs:
         run: |
           if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python not found in PATH" }
           if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { Write-Host "Cargo not found in PATH (needed to install objdiff-cli if missing)" }
-          if (-not (Get-Command nx2elf -ErrorAction SilentlyContinue)) { throw "nx2elf not found in PATH. Set NX_DECOMP_TOOLS_NX2ELF or install it." }
+          if (-not (Get-Command nx2elf -ErrorAction SilentlyContinue)) { Write-Host "nx2elf not found in PATH; will use Python fallback (tools/nso_to_elf.py)" }
 
       - name: Prepare main.nso
         shell: powershell
