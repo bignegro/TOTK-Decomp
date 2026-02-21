@@ -1,0 +1,46 @@
+if (DEFINED ENV{TOTK_CLANG})
+    set(TOTK_CLANG "$ENV{TOTK_CLANG}")
+else()
+    set(TOTK_CLANG "C:/Program Files/LLVM/bin/clang.exe")
+endif()
+
+if (DEFINED ENV{TOTK_LLD})
+    set(TOTK_LLD "$ENV{TOTK_LLD}")
+else()
+    set(TOTK_LLD "C:/Program Files/LLVM/bin/ld.lld.exe")
+endif()
+
+set(NX64_TRIPLE aarch64-none-elf)
+
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_VERSION 1)
+set(CMAKE_SYSTEM_PROCESSOR aarch64)
+
+set(CMAKE_C_COMPILER "${TOTK_CLANG}")
+set(CMAKE_C_COMPILER_TARGET ${NX64_TRIPLE})
+set(CMAKE_CXX_COMPILER "${TOTK_CLANG}")
+set(CMAKE_CXX_COMPILER_TARGET ${NX64_TRIPLE})
+set(CMAKE_ASM_COMPILER "${TOTK_CLANG}")
+set(CMAKE_ASM_COMPILER_TARGET ${NX64_TRIPLE})
+
+set(NX64_OPT_FLAGS "-O3 -g")
+set(CMAKE_C_FLAGS_RELEASE ${NX64_OPT_FLAGS})
+set(CMAKE_CXX_FLAGS_RELEASE ${NX64_OPT_FLAGS})
+set(CMAKE_C_FLAGS_RELWITHDEBINFO ${NX64_OPT_FLAGS})
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${NX64_OPT_FLAGS})
+
+add_compile_options(-mcpu=cortex-a57+fp+simd+crypto+crc)
+add_compile_options(-mno-implicit-float)
+add_compile_options(-ffreestanding)
+add_compile_options(-fPIC)
+add_compile_options(-fstandalone-debug)
+add_compile_options(-fno-exceptions)
+add_compile_options(-fno-rtti)
+add_compile_options(-fno-strict-aliasing)
+add_compile_options(--gcc-toolchain=/nonexistent)
+
+add_definitions(-D SWITCH)
+add_definitions(-D NNSDK)
+
+add_link_options(-nostdlib)
+add_link_options(-fuse-ld=${TOTK_LLD})

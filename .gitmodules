@@ -1,3 +1,9 @@
 [submodule "tools/decomp.dev"]
 	path = tools/decomp.dev
 	url = https://github.com/encounter/decomp.dev
+[submodule "tools/common"]
+	path = tools/common
+	url = https://github.com/open-ead/nx-decomp-tools
+[submodule "toolchain/nx-decomp-tools-binaries"]
+	path = toolchain/nx-decomp-tools-binaries
+	url = https://github.com/open-ead/nx-decomp-tools-binaries

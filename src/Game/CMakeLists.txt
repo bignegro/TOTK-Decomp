@@ -1,0 +1,7 @@
+add_subdirectory(Actor)
+add_subdirectory(AI)
+add_subdirectory(Cooking)
+add_subdirectory(Damage)
+add_subdirectory(DLC)
+add_subdirectory(UI)
+add_subdirectory(Unk)

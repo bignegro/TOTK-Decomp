@@ -2,6 +2,7 @@
 /build/
 /out/
 /tmp/
+/.vs/
 
 # Objects and binaries
 /**/*.o
@@ -27,3 +28,19 @@
 !/orig/.gitkeep
 /roms/
 /dumps/
+/ref/
+/ref2/
+
+# Local tools
+/tools/*.exe
+
+# Local decomp.dev
+/tools/decomp.dev/config.yml
+/tools/decomp.dev/db.sqlite
+/tools/decomp.dev/jobs.sqlite
+/tools/decomp.dev/node_modules/
+# Converted executables (keep progress files)
+/data/*.nso
+/data/*.elf
+/data/*.nro
+/data/*.kip

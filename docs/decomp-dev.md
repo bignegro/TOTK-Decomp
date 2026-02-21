@@ -9,4 +9,30 @@ Steps to connect:
 3. **Authorize the tracker** so it can read the repo. The `encounter/decomp.dev` backend handles webhook delivery and comment automation; you only need to grant read access to the repo.
 4. **Wire objdiff exports**: when you make progress on a binary, run `objdiff` (see `docs/objdiff.md`) and push the generated stats. The tracker uses those artifacts to render completeness bars.
 
-For more setup details or to run a local copy of the tracker, consult the upstream source at `https://github.com/encounter/decomp.dev`. Reuse their API keys/webhooks if you want a staging tracker or wish to submit smaller PRs to their repo.
+## Local decomp.dev (localhost)
+
+This repo includes the decomp.dev source as a submodule in `tools/decomp.dev`.
+Use the helper scripts to run it locally.
+
+1) Create a local config:
+   - Copy `config/decomp-dev.local.example.yml` to `tools/decomp.dev/config.yml`
+   - Put your GitHub PAT in the `github.token` field
+   - Or set `DECOMP_DEV_GITHUB_TOKEN` before running the backend script
+
+2) Start the backend (includes job workers):
+```powershell
+tools\run_decomp_dev_backend.ps1
+```
+
+3) Start the frontend in a second terminal:
+```powershell
+tools\run_decomp_dev_frontend.ps1
+```
+
+4) Open: http://localhost:3000
+   - Dev mode is enabled, so you can log in without OAuth.
+   - Add the project at `/manage/new` (use your GitHub repo URL).
+   - Click "Refresh" to fetch report artifacts from GitHub Actions.
+
+Note: decomp.dev fetches reports from GitHub Actions artifacts. The workflow in
+`.github/workflows/progress.yml` uploads `build/report.json` as `${VERSION}_report`.

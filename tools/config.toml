@@ -1,0 +1,6 @@
+file_list = "data/file_list.yml"
+functions_csv = "data/functions.csv"
+build_target = "totk"
+
+[decomp_me]
+preset_id = "0"

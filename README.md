@@ -16,11 +16,47 @@ No ROMs, game data, or proprietary assets should ever be checked in.
 - docs/   Notes and references
 
 ## Local Setup (high level)
-- Install Git and configure your GitHub CLI (`gh auth login` recommended).
-- Install Python 3.11+ if scripts/tools in `tools/` rely on it.
-- Choose a disassembler (Ghidra, IDA, or alike) and point it at the dumped binaries.
-- Install `objdiff` and configure it for the Tears of the Kingdom binaries to drive progress tracking.
-- Follow `docs/decomp-dev.md` to register the repo with the upstream `decomp.dev` tracker.
+This repo supports a full Odyssey-style pipeline plus objdiff tracking.
+
+### 1) Dependencies
+- Git (and `git submodule update --init --recursive`)
+- Python 3.11+
+- Ninja + CMake 3.13+
+- Rust (for `tools/check`, `tools/listsym`, `tools/decompme`)
+- LLVM/Clang + lld (AArch64 target)
+- `nx2elf` in your PATH (or set `NX_DECOMP_TOOLS_NX2ELF` env var)
+
+### 2) Prepare the original executable
+Use your legally obtained `main.nso` (ExeFS dump only is enough).
+
+```powershell
+python tools\setup.py C:\path\to\main.nso
+```
+
+This converts to:
+- `data/main.nso`
+- `data/main.elf`
+- `data/main.uncompressed.nso`
+and builds the check tools.
+
+### 3) Generate function lists
+```powershell
+python tools\gen_file_list.py --ida-csv orig\ida_functions.csv --ida-segments orig\ida_segments.txt --out data\file_list.yml
+python tools\gen_functions_csv.py --ida-csv orig\ida_functions.csv --ida-segments orig\ida_segments.txt --out data\functions.csv
+```
+
+### 4) Build and check
+```powershell
+python tools\build.py
+tools\check            # check all
+tools\check SomeFunc   # check one
+```
+
+### 5) Objdiff / decomp.dev progress
+```powershell
+python tools\make_target_obj.py
+objdiff-cli report generate -o build\report.json
+```
 
 ## Tracking & Contributions
 - Keep proprietary data (ROMs, dumps, binaries) in `orig/` or local-only folders; they stay out of version control.

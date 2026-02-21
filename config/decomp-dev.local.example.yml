@@ -1,0 +1,13 @@
+server:
+  port: 3000
+  # Optional: expose the jobs server separately (leave null to disable)
+  # jobs_port: 3001
+  dev_mode: true
+
+db:
+  url: sqlite:./db.sqlite
+  jobs_url: sqlite:./jobs.sqlite
+
+github:
+  # Personal access token with repo access
+  token: ghp_REPLACE_ME

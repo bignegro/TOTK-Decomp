@@ -1,0 +1,12 @@
+# objdiff config for TOTK (minimal)
+project = "Tears of the Kingdom"
+
+[paths]
+base = "orig"
+objects = [
+  "..\\build\\main.elf",
+]
+
+[report]
+output = "..\\build\\objdiff-report.json"
+format = "json"

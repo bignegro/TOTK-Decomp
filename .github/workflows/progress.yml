@@ -1,0 +1,93 @@
+name: Progress Report
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Report version label (artifact prefix)"
+        required: false
+        default: "TOTK_100"
+      build_viking:
+        description: "Build tools/check (viking)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+env:
+  VERSION: ${{ github.event.inputs.version || 'TOTK_100' }}
+  BUILD_VIKING: ${{ github.event.inputs.build_viking || 'false' }}
+  MAIN_NSO_PATH: ${{ secrets.MAIN_NSO_PATH }}
+
+jobs:
+  report:
+    runs-on: [self-hosted, windows]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Verify tools
+        shell: pwsh
+        run: |
+          if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python not found in PATH" }
+          if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { Write-Host "Cargo not found in PATH (needed to install objdiff-cli if missing)" }
+          if (-not (Get-Command nx2elf -ErrorAction SilentlyContinue)) { throw "nx2elf not found in PATH. Set NX_DECOMP_TOOLS_NX2ELF or install it." }
+
+      - name: Prepare main.nso
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path data | Out-Null
+          if ($env:MAIN_NSO_PATH -and (Test-Path $env:MAIN_NSO_PATH)) {
+            Copy-Item -Force $env:MAIN_NSO_PATH data\main.nso
+          }
+          if (-not (Test-Path data\main.nso)) {
+            throw "data\\main.nso is missing. Provide MAIN_NSO_PATH secret or place it on the runner."
+          }
+
+      - name: Install Python deps
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install lz4
+
+      - name: Setup project
+        shell: pwsh
+        run: |
+          if ($env:BUILD_VIKING -eq "true") {
+            python tools\setup.py data\main.nso
+          } else {
+            python tools\setup.py data\main.nso --skip-viking
+          }
+
+      - name: Ensure objdiff-cli
+        shell: pwsh
+        run: |
+          if (-not (Get-Command objdiff-cli -ErrorAction SilentlyContinue)) {
+            if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
+              throw "objdiff-cli not found and cargo is missing. Install objdiff-cli or Rust."
+            }
+            cargo install objdiff-cli --version 3.6.1
+          }
+
+      - name: Generate target/base objects
+        shell: pwsh
+        run: |
+          python tools\make_target_obj.py --nso data\main.nso --ida-csv orig\ida_functions.csv
+
+      - name: Generate objdiff report
+        shell: pwsh
+        run: |
+          objdiff-cli report generate -o build\report.json
+
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.VERSION }}_report
+          path: build\report.json
