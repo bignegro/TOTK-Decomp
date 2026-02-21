@@ -78,6 +78,8 @@ def get_functions(unit_name):
             return None
     
     for fun in funcs:
+        if fun["status"] == "NotDecompiled":
+            continue
         mangled_name = fun["label"] if isinstance(fun["label"], str) else fun["label"][0]
         demangled_name = get_function_demangled_name(mangled_name)
 
@@ -100,6 +102,8 @@ def get_functions(unit_name):
 def get_units():
     units = []
     for unit_name, unit_data in data.items():
+        if all(fun["status"] == "NotDecompiled" for fun in unit_data[".text"]):
+            continue
         unit = ReportUnit()
         unit.name = unit_name.removesuffix(".o")
         unit.measures.CopyFrom(get_measures(unit_name))
