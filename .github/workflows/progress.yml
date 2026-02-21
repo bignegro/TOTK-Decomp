@@ -28,10 +28,17 @@ jobs:
   report:
     runs-on: [self-hosted, windows]
     steps:
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      - name: Setup portable Python
+        shell: pwsh
+        run: |
+          $pyDir = Join-Path $env:RUNNER_TEMP "py311"
+          if (-not (Test-Path $pyDir)) {
+            New-Item -ItemType Directory -Force -Path $pyDir | Out-Null
+            $zip = Join-Path $env:RUNNER_TEMP "python-3.11.9-embed-amd64.zip"
+            Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile $zip
+            Expand-Archive -LiteralPath $zip -DestinationPath $pyDir -Force
+          }
+          Add-Content $env:GITHUB_PATH $pyDir
 
       - name: Checkout
         uses: actions/checkout@v4
