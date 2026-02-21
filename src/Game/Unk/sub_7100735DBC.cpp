@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 
+extern "C" {
 extern unsigned char *off_71045621A0[1];
 extern int64_t *off_71045621A8;
 
@@ -42,4 +43,5 @@ __attribute__((naked)) int64_t *sub_7100735DBC(void) {
         "adrp x0, off_71045621A8\n"
         "ldr x0, [x0, #:lo12:off_71045621A8]\n"
         "b 2b\n");
+}
 }

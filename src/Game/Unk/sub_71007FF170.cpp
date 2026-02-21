@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
+extern "C" {
 extern uint64_t *off_7104557768;
 extern uint64_t *off_7104557798;
 extern void *nn_os_GetTlsValue(unsigned int slot)
@@ -59,4 +60,5 @@ __attribute__((naked)) void *sub_71007FF170(size_t size, void *alloc, unsigned i
         "ldp x20, x19, [sp, #0x20]\n"
         "ldp x29, x30, [sp], #0x30\n"
         "b aligned_alloc\n");
+}
 }

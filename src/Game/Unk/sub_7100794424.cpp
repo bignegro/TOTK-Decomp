@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 
+extern "C" {
 __attribute__((naked)) uint64_t *sub_7100794424(uint64_t *obj) {
     __asm__ volatile(
         "ldr x8, [x0, #0x8]\n"
@@ -20,4 +21,5 @@ __attribute__((naked)) uint64_t *sub_7100794424(uint64_t *obj) {
         "br x1\n"
         "2:\n"
         "ret\n");
+}
 }
