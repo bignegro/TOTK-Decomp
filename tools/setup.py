@@ -15,11 +15,15 @@ import os
 import shutil
 import subprocess
 import sys
+import types
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 COMMON_ROOT = ROOT / "common"
 sys.path.insert(0, str(COMMON_ROOT))
+common_pkg = types.ModuleType("common")
+common_pkg.__path__ = [str(COMMON_ROOT)]
+sys.modules.setdefault("common", common_pkg)
 
 try:
     from common import setup_common as setup
