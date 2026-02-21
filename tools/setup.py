@@ -17,8 +17,8 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools" / "common"))
+ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "common"))
 
 from common import setup_common as setup
 from common.util import tools as common_tools
