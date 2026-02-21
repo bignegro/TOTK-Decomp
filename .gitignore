@@ -44,3 +44,7 @@
 /data/*.elf
 /data/*.nro
 /data/*.kip
+/data/*.bin
+/data/segments/
+/include/macro.inc
+/totk.ld

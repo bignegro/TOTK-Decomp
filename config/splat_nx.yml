@@ -1,0 +1,21 @@
+options:
+  platform: nx
+  is_unsupported_platform: true
+  basename: totk
+  base_path: ..
+  target_path: data/main.uncompressed.bin
+  build_path: build/splat
+  asm_path: build/splat/asm
+  asset_path: build/splat/assets
+  src_path: src
+  endianness: little
+  section_order: [".text", ".rodata", ".data", ".bss"]
+  create_c_files: false
+  auto_decompile_empty_functions: false
+  do_c_func_detection: false
+  create_undefined_funcs_auto: false
+  create_undefined_syms_auto: false
+segments:
+  - [0x00000000, "textbin", "text", 0x7100000000]
+  - [0x02aa7000, "rodatabin", "rodata", 0x7102AA7000]
+  - [0x040e0000, "databin", "data", 0x71040E0000]
