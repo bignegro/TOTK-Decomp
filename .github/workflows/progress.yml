@@ -61,6 +61,12 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Ensure submodules
+        shell: powershell
+        run: |
+          git submodule update --init --recursive
+          if (-not (Test-Path tools\common\setup_common.py)) { throw "tools/common missing after submodule update" }
+
       - name: Verify tools
         shell: powershell
         run: |

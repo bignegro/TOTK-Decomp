@@ -18,10 +18,17 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "common"))
+COMMON_ROOT = ROOT / "common"
+sys.path.insert(0, str(COMMON_ROOT))
 
-from common import setup_common as setup
-from common.util import tools as common_tools
+try:
+    from common import setup_common as setup
+    from common.util import tools as common_tools
+except ModuleNotFoundError:
+    # Fallback for environments that don't resolve namespace packages.
+    sys.path.insert(0, str(COMMON_ROOT))
+    import setup_common as setup  # type: ignore
+    from util import tools as common_tools  # type: ignore
 
 
 def find_tool_maybe(name: str) -> str | None:
