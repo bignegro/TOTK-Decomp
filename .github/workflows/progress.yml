@@ -88,6 +88,7 @@ jobs:
       - name: Setup project
         shell: powershell
         run: |
+          $env:PYTHONPATH = "$pwd\\tools\\common"
           if ($env:BUILD_VIKING -eq "true") {
             python tools\setup.py data\main.nso
           } else {
