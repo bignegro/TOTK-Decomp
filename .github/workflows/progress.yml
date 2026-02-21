@@ -29,7 +29,7 @@ jobs:
     runs-on: [self-hosted, windows]
     steps:
       - name: Setup portable Python
-        shell: pwsh
+        shell: powershell
         run: |
           $pyDir = Join-Path $env:RUNNER_TEMP "py311"
           if (-not (Test-Path $pyDir)) {
@@ -38,7 +38,23 @@ jobs:
             Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile $zip
             Expand-Archive -LiteralPath $zip -DestinationPath $pyDir -Force
           }
+          $pth = Join-Path $pyDir "python311._pth"
+          if (Test-Path $pth) {
+            $content = Get-Content $pth -Raw
+            if ($content -match "#import site") {
+              $content = $content -replace "#import site", "import site"
+              Set-Content -Path $pth -Value $content -NoNewline
+            } elseif ($content -notmatch "import site") {
+              Add-Content -Path $pth -Value "`nimport site"
+            }
+          }
+          $pip = Join-Path $pyDir "get-pip.py"
+          if (-not (Test-Path (Join-Path $pyDir "Scripts\\pip.exe"))) {
+            Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile $pip
+            & (Join-Path $pyDir "python.exe") $pip
+          }
           Add-Content $env:GITHUB_PATH $pyDir
+          Add-Content $env:GITHUB_PATH (Join-Path $pyDir "Scripts")
 
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,14 +62,14 @@ jobs:
           submodules: recursive
 
       - name: Verify tools
-        shell: pwsh
+        shell: powershell
         run: |
           if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python not found in PATH" }
           if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { Write-Host "Cargo not found in PATH (needed to install objdiff-cli if missing)" }
           if (-not (Get-Command nx2elf -ErrorAction SilentlyContinue)) { throw "nx2elf not found in PATH. Set NX_DECOMP_TOOLS_NX2ELF or install it." }
 
       - name: Prepare main.nso
-        shell: pwsh
+        shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path data | Out-Null
           if ($env:MAIN_NSO_PATH -and (Test-Path $env:MAIN_NSO_PATH)) {
@@ -64,13 +80,13 @@ jobs:
           }
 
       - name: Install Python deps
-        shell: pwsh
+        shell: powershell
         run: |
           python -m pip install --upgrade pip
           python -m pip install lz4
 
       - name: Setup project
-        shell: pwsh
+        shell: powershell
         run: |
           if ($env:BUILD_VIKING -eq "true") {
             python tools\setup.py data\main.nso
@@ -79,7 +95,7 @@ jobs:
           }
 
       - name: Ensure objdiff-cli
-        shell: pwsh
+        shell: powershell
         run: |
           if (-not (Get-Command objdiff-cli -ErrorAction SilentlyContinue)) {
             if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
@@ -89,12 +105,12 @@ jobs:
           }
 
       - name: Generate target/base objects
-        shell: pwsh
+        shell: powershell
         run: |
           python tools\make_target_obj.py --nso data\main.nso --ida-csv orig\ida_functions.csv
 
       - name: Generate objdiff report
-        shell: pwsh
+        shell: powershell
         run: |
           objdiff-cli report generate -o build\report.json
 
