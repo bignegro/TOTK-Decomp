@@ -1,0 +1,12 @@
+roots:
+  ksys: KingSystem
+  gdt: Game
+  uking: Game
+  al: al
+  sead: sead
+  nn: nn
+  agl: agl
+  oe: nn/oe
+  gfx: gfx
+  vfx: vfx
+fallback_root: UNKNOWN

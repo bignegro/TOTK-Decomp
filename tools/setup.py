@@ -205,8 +205,22 @@ def maybe_generate_lists() -> None:
         return
 
     if not Path("data/file_list.yml").exists():
-        subprocess.check_call(
-            [
+        file_list_script = Path("tools/gen_file_list_ns.py")
+        if file_list_script.is_file():
+            cmd = [
+                "python",
+                str(file_list_script),
+                "--ida-csv",
+                str(ida_csv),
+                "--ida-segments",
+                str(ida_segments),
+                "--out",
+                "data/file_list.yml",
+                "--roots",
+                "config/file_map.yml",
+            ]
+        else:
+            cmd = [
                 "python",
                 str(Path("tools/gen_file_list.py")),
                 "--ida-csv",
@@ -216,7 +230,7 @@ def maybe_generate_lists() -> None:
                 "--out",
                 "data/file_list.yml",
             ]
-        )
+        subprocess.check_call(cmd)
 
     if not Path("data/functions.csv").exists():
         subprocess.check_call(

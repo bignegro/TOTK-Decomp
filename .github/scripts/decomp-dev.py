@@ -74,7 +74,7 @@ def get_functions(unit_name):
     def get_function_demangled_name(name):
         try:
             return cxxfilt.demangle(name)
-        except cxxfilt.InvalidName:
+        except (cxxfilt.InvalidName, cxxfilt.LibraryNotFound):
             return None
     
     for fun in funcs:

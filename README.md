@@ -41,7 +41,7 @@ and builds the check tools.
 
 ### 3) Generate function lists
 ```powershell
-python tools\gen_file_list.py --ida-csv orig\ida_functions.csv --ida-segments orig\ida_segments.txt --out data\file_list.yml
+python tools\gen_file_list_ns.py --ida-csv orig\ida_functions.csv --ida-segments orig\ida_segments.txt --out data\file_list.yml --roots config\file_map.yml
 python tools\gen_functions_csv.py --ida-csv orig\ida_functions.csv --ida-segments orig\ida_segments.txt --out data\functions.csv
 ```
 
