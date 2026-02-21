@@ -11,118 +11,38 @@ on:
         description: "Report version label (artifact prefix)"
         required: false
         default: "TOTK_100"
-      build_viking:
-        description: "Build tools/check (viking)"
-        required: false
-        default: "false"
 
 permissions:
   contents: read
 
 env:
   VERSION: ${{ github.event.inputs.version || 'TOTK_100' }}
-  BUILD_VIKING: ${{ github.event.inputs.build_viking || 'false' }}
-  MAIN_NSO_PATH: ${{ secrets.MAIN_NSO_PATH }}
 
 jobs:
   report:
-    runs-on: [self-hosted, windows]
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup portable Python
-        shell: powershell
-        run: |
-          $pyDir = Join-Path $env:RUNNER_TEMP "py311"
-          if (-not (Test-Path $pyDir)) {
-            New-Item -ItemType Directory -Force -Path $pyDir | Out-Null
-            $zip = Join-Path $env:RUNNER_TEMP "python-3.11.9-embed-amd64.zip"
-            Invoke-WebRequest -Uri "https://www.python.org/ftp/python/3.11.9/python-3.11.9-embed-amd64.zip" -OutFile $zip
-            Expand-Archive -LiteralPath $zip -DestinationPath $pyDir -Force
-          }
-          $pth = Join-Path $pyDir "python311._pth"
-          if (Test-Path $pth) {
-            $content = Get-Content $pth -Raw
-            if ($content -match "#import site") {
-              $content = $content -replace "#import site", "import site"
-              Set-Content -Path $pth -Value $content -NoNewline
-            } elseif ($content -notmatch "import site") {
-              Add-Content -Path $pth -Value "`nimport site"
-            }
-          }
-          $pip = Join-Path $pyDir "get-pip.py"
-          if (-not (Test-Path (Join-Path $pyDir "Scripts\\pip.exe"))) {
-            Invoke-WebRequest -Uri "https://bootstrap.pypa.io/get-pip.py" -OutFile $pip
-            & (Join-Path $pyDir "python.exe") $pip
-          }
-          Add-Content $env:GITHUB_PATH $pyDir
-          Add-Content $env:GITHUB_PATH (Join-Path $pyDir "Scripts")
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Ensure submodules
-        shell: powershell
-        run: |
-          git submodule update --init --recursive
-          if (-not (Test-Path tools\common\setup_common.py)) { throw "tools/common missing after submodule update" }
-
-      - name: Verify tools
-        shell: powershell
-        run: |
-          if (-not (Get-Command python -ErrorAction SilentlyContinue)) { throw "Python not found in PATH" }
-          if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) { Write-Host "Cargo not found in PATH (needed to install objdiff-cli if missing)" }
-          if (-not (Get-Command nx2elf -ErrorAction SilentlyContinue)) { Write-Host "nx2elf not found in PATH; will use Python fallback (tools/nso_to_elf.py)" }
-
-      - name: Prepare main.nso
-        shell: powershell
-        run: |
-          New-Item -ItemType Directory -Force -Path data | Out-Null
-          if ($env:MAIN_NSO_PATH -and (Test-Path $env:MAIN_NSO_PATH)) {
-            Copy-Item -Force $env:MAIN_NSO_PATH data\main.nso
-          }
-          if (-not (Test-Path data\main.nso)) {
-            throw "data\\main.nso is missing. Provide MAIN_NSO_PATH secret or place it on the runner."
-          }
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
       - name: Install Python deps
-        shell: powershell
         run: |
           python -m pip install --upgrade pip
-          python -m pip install lz4 toml
+          python -m pip install pyyaml protobuf cxxfilt
 
-      - name: Setup project
-        shell: powershell
+      - name: Generate decomp.dev report
         run: |
-          $env:PYTHONPATH = "$pwd\\tools\\common"
-          if ($env:BUILD_VIKING -eq "true") {
-            python tools\setup.py data\main.nso
-          } else {
-            python tools\setup.py data\main.nso --skip-viking
-          }
-
-      - name: Ensure objdiff-cli
-        shell: powershell
-        run: |
-          if (-not (Get-Command objdiff-cli -ErrorAction SilentlyContinue)) {
-            if (-not (Get-Command cargo -ErrorAction SilentlyContinue)) {
-              throw "objdiff-cli not found and cargo is missing. Install objdiff-cli or Rust."
-            }
-            cargo install objdiff-cli --version 3.6.1
-          }
-
-      - name: Generate target/base objects
-        shell: powershell
-        run: |
-          python tools\make_target_obj.py --nso data\main.nso --ida-csv orig\ida_functions.csv
-
-      - name: Generate objdiff report
-        shell: powershell
-        run: |
-          objdiff-cli report generate -o build\report.json
+          python .github/scripts/decomp-dev.py --version ${{ env.VERSION }} -o report.json
 
       - name: Upload report artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.VERSION }}_report
-          path: build\report.json
+          path: report.json
