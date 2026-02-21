@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 from collections import Counter
 from pathlib import Path
 
@@ -55,6 +56,12 @@ DEFAULT_STOP = {
     "phys",
 }
 
+STRONG_PATTERNS = (
+    "{mod}::",  # C++ namespace style
+    "{mod}__",  # TOTK string convention (game__component__)
+    "/{mod}/",  # path component
+)
+
 
 def load_botw_modules(path: Path, allow: set[str], stop: set[str], min_len: int) -> list[str]:
     counts = Counter()
@@ -84,12 +91,22 @@ def load_totk_strings(path: Path) -> list[str]:
     return strings
 
 
+def compile_patterns(mod: str) -> list[re.Pattern[str]]:
+    escaped = re.escape(mod)
+    patterns = []
+    for fmt in STRONG_PATTERNS:
+        patterns.append(re.compile(fmt.format(mod=escaped)))
+    return patterns
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Find BOTW/TOTK shared module hints.")
     parser.add_argument("--botw-functions", default="ref2/data/uking_functions.csv")
     parser.add_argument("--totk-strings", default="orig/ida_strings.txt")
     parser.add_argument("--min-len", type=int, default=4)
+    parser.add_argument("--min-strong", type=int, default=2, help="Minimum strong hits to report a module.")
     parser.add_argument("--top", type=int, default=30)
+    parser.add_argument("--write", default=None, help="Write results to a YAML-ish file.")
     args = parser.parse_args()
 
     botw_path = Path(args.botw_functions)
@@ -102,25 +119,47 @@ def main() -> None:
     modules = load_botw_modules(botw_path, DEFAULT_ALLOW, DEFAULT_STOP, args.min_len)
     totk_strings = load_totk_strings(totk_path)
 
-    found: list[tuple[str, int, str]] = []
+    found: list[tuple[str, int, int, str]] = []
     for mod in modules:
-        count = 0
+        strong = 0
+        weak = 0
         sample = None
+        patterns = compile_patterns(mod)
         for s in totk_strings:
-            if mod in s:
-                count += 1
-                if sample is None:
-                    sample = s
-        if count:
-            found.append((mod, count, sample or ""))
+            if mod not in s:
+                continue
+            hit = False
+            for pat in patterns:
+                if pat.search(s):
+                    strong += 1
+                    hit = True
+                    if sample is None:
+                        sample = s
+                    break
+            if not hit:
+                weak += 1
+        if strong >= args.min_strong or (mod in DEFAULT_ALLOW and strong > 0):
+            found.append((mod, strong, weak, sample or ""))
 
-    found.sort(key=lambda x: (-x[1], x[0]))
+    found.sort(key=lambda x: (-x[1], -x[2], x[0]))
 
     print(f"BOTW modules checked: {len(modules)}")
     print(f"Modules found in TOTK strings: {len(found)}")
     print()
-    for mod, count, sample in found[: args.top]:
-        print(f"{mod}: {count} (example: {sample})")
+    for mod, strong, weak, sample in found[: args.top]:
+        print(f"{mod}: strong={strong} weak={weak} (example: {sample})")
+
+    if args.write:
+        out_path = Path(args.write)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        with out_path.open("w", encoding="utf-8") as out:
+            out.write("shared_modules:\n")
+            for mod, strong, weak, sample in found:
+                out.write(f"  - name: {mod}\n")
+                out.write(f"    strong: {strong}\n")
+                out.write(f"    weak: {weak}\n")
+                out.write(f"    example: {sample}\n")
+        print(f"Wrote {out_path}")
 
 
 if __name__ == "__main__":

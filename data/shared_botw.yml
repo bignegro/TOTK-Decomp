@@ -1,0 +1,57 @@
+shared_modules:
+  - name: game
+    strong: 1627
+    weak: 5
+    example: game__aischedule__OnBuyPlacementShop
+  - name: sound
+    strong: 81
+    weak: 4
+    example: System/CombinationDataTableData/game__sound__EquipmentNoise.pp__CombinationDataTableData.gyml
+  - name: action
+    strong: 31
+    weak: 255
+    example: engine__reaction__TableParam
+  - name: gsys
+    strong: 30
+    weak: 131
+    example: gsys::ModelResource(MatBlock)
+  - name: System
+    strong: 24
+    weak: 185
+    example: The heap memory is run out. The memory allocation in nn::vfx2::System::EntryResource2() has failed.
+  - name: sead
+    strong: 23
+    weak: 1
+    example: sead::MainThread
+  - name: dragon
+    strong: 18
+    weak: 0
+    example: game__dragon__SwordBindPartsSettingParam
+  - name: Actor
+    strong: 16
+    weak: 1167
+    example: Work/Actor/LightFootprint.engine__actor__ActorParam.gyml
+  - name: XLink
+    strong: 15
+    weak: 56
+    example: Work/XLink/PropertyTableParam
+  - name: tera
+    strong: 11
+    weak: 98
+    example: tera::Scene
+  - name: Constraint
+    strong: 5
+    weak: 406
+    example: D:/home/Lib/Build/.tmp/Havok/hk2022_1_16_PhysicsClothAI/Source/Physics/Physics/Dynamics/Constraint/Motor/hknpConstraintMotor.cpp
+  - name: Controller
+    strong: 4
+    weak: 175
+    example: Hold Event buffer overflow %d >= %d. check as::Controller::CreateArg::numEventBuffer.
+  - name: shop
+    strong: 4
+    weak: 1
+    example: game__shop__ReleaseParam
+  - name: Layer
+    strong: 3
+    weak: 218
+    example: hkxAnimationData::Layer::ScaleAccumulationMode
