@@ -7,6 +7,7 @@ target_sources(totk PRIVATE
   sub_710070096C.c
   sub_7100735DBC.c
   sub_71007FF170.c
+  sub_7100850B20.c
   sub_7100F52E9C.c
   sub_7100783AC4.c
   sub_7100954470.c

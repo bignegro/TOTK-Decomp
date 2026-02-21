@@ -72,6 +72,21 @@ __attribute__((weak)) unsigned char *off_7104559C08[1];
 __attribute__((weak)) long long *off_7104559C10;
 __attribute__((weak)) unsigned char *off_7104557808;
 
+__attribute__((weak)) unsigned long long off_71044FA6F0;
+__attribute__((weak)) unsigned long long *off_7104557D28;
+
+__attribute__((weak)) unsigned long long sub_7100AF8500(void) { return 0; }
+__attribute__((weak)) unsigned long long sub_7100819CE8(unsigned long long a1, unsigned long long a2) {
+    (void)a1;
+    (void)a2;
+    return 0;
+}
+__attribute__((weak)) unsigned long long sub_71006993F8(unsigned long long a1, unsigned long long a2) {
+    (void)a1;
+    (void)a2;
+    return 0;
+}
+
 __attribute__((weak)) unsigned char *off_7104558670[1];
 __attribute__((weak)) unsigned long long *off_7104558678;
 __attribute__((weak)) unsigned char *off_7104559A58;
